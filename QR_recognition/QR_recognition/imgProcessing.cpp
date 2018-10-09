@@ -80,7 +80,7 @@ Point qr::centerCal(vector<vector<Point>> contours, int i)
 	int centerX = 0, centerY = 0;
 	int n = contours[i].size();       // n 即为轮廓的周长
 	
-	for (int j = 1; j <= 4; j++)
+	for (int j = 0; j < 4; j++)
 	{
 		centerX += contours[i][int((float)j * n / 4)].x;
 		centerY += contours[i][int((float)j * n / 4)].y;
@@ -100,11 +100,11 @@ bool qr::preProcess(const Mat &src, Mat &dest)
 	return true;
 }
 
-void qr::findPosRect(const Mat &src, Mat &drawing)
+void qr::findPosRect(const Mat &src, vector<vector<Point>> &contours2)
 {
 	//drawing = Mat::zeros(src.size(), CV_8UC3);
 	// 提取图像的边缘保存于 contours 中
-	vector<vector<Point>> contours, contours2;
+	vector<vector<Point>> contours;
 	vector<Vec4i> hierarchy;                        // hierarchy [next, previous, child, parent]
 	findContours(src, contours, hierarchy, RETR_TREE, CHAIN_APPROX_NONE, Point());
 
@@ -133,7 +133,4 @@ void qr::findPosRect(const Mat &src, Mat &drawing)
 			parentIdx = -1;
 		}
 	}
-	drawContours(drawing, contours2, -1, Scalar(0, 255, 0), 1, 8);         // contourIdx 为负数，表示绘制所有的轮廓
-	imshow("drawing", drawing);
-	waitKey(0);
 }

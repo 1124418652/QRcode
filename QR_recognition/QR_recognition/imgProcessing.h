@@ -14,5 +14,5 @@ namespace qr {
 	bool threshold(const Mat &src, Mat &dest, THRESHOLD thre = OTSUTHRE);
 	bool preProcess(const Mat &src, Mat &dest);
 	Point centerCal(vector<vector<Point>> contours, int i);
-	void findPosRect(const Mat &src, Mat &drawing);
+	void findPosRect(const Mat &src, vector<vector<Point>> &contours2);
 };
