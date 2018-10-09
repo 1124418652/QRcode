@@ -10,7 +10,7 @@ import os
 import sys
 import re
 
-__all__ = ["isCodeFile", "findFile"]
+__all__ = ["isCodeFile", "findFile", "write_to_file", "modify_path"]
 
 path = os.path.abspath(".")
 ignorePath = os.path.join(path, ".gitignore")
