@@ -22,21 +22,16 @@ int main()
 		return 1;
 	}
 
-	cout << src_img.size() << endl;
-
 	start = time(NULL);
 	if (qr::preProcess(src_img, dest))
 	{
 		qr::findPosRect(dest, src_img.clone());
 	}
-	//qr::threshold(dest, dest);
 	end = time(NULL);
 	cout << "Time Used: " << end - start << "ms" << endl;
 	cout << gray_img.size << endl;
 
-	
 	imshow("src_img", src_img);
-
 	//threshold(src_img, dest, 103, 255, 0);
 	imshow("dest", dest);
 
