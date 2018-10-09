@@ -32,7 +32,7 @@ int main()
 		for (int i = 0; i < posRectContours.size(); i++)
 		{
 			center[i] = qr::centerCal(posRectContours, i);
-			circle(drawing, center[i], 2, Scalar(0, 255, 0), 2);
+			circle(drawing, center[i], 1, Scalar(0, 255, 0), 1);
 		}
 		imshow("drawing", drawing);
 
