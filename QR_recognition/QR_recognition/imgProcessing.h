@@ -13,6 +13,6 @@ using namespace cv;
 namespace qr {
 	bool threshold(const Mat &src, Mat &dest, THRESHOLD thre = OTSUTHRE);
 	bool preProcess(const Mat &src, Mat &dest);
-	bool isPosRect();
 	Point centerCal(vector<vector<Point>> contours, int i);
+	void findPosRect(const Mat &src, Mat &drawing);
 };

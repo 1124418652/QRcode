@@ -92,22 +92,48 @@ Point qr::centerCal(vector<vector<Point>> contours, int i)
 bool qr::preProcess(const Mat &src, Mat &dest)
 {
 	Mat tmpimg;
-	Mat drawing = Mat::zeros(src.size(), CV_8UC3);
-	blur(src, tmpimg, Size(3, 3));
-	qr::threshold(tmpimg, dest, OTSUTHRE);
-
-
-	// 提取图像的边缘保存于 contours 中
-	vector<vector<Point>> contours, contours2;
-	vector<Vec4i> hierarchy;
-	findContours(dest, contours, hierarchy, RETR_TREE, CHAIN_APPROX_NONE, Point());
-	drawContours(drawing, contours, -1, Scalar(0, 255, 0), 1, 8);         // contourIdx 为负数，表示绘制所有的轮廓
 	
-	cout << contours[0] << endl;
+	cvtColor(src, tmpimg, CV_BGR2GRAY);
+	blur(tmpimg, tmpimg, Size(3, 3));                  // 用 3*3 的 kernal 高斯模糊
+	qr::threshold(tmpimg, dest, OTSUTHRE);          // dest 为生成的二值图像
+
 	return true;
 }
 
-bool qr::isPosRect()
+void qr::findPosRect(const Mat &src, Mat &drawing)
 {
-	return true;
+	//drawing = Mat::zeros(src.size(), CV_8UC3);
+	// 提取图像的边缘保存于 contours 中
+	vector<vector<Point>> contours, contours2;
+	vector<Vec4i> hierarchy;                        // hierarchy [next, previous, child, parent]
+	findContours(src, contours, hierarchy, RETR_TREE, CHAIN_APPROX_NONE, Point());
+
+	int c = 0, ic = 0, area = 0;                    // ic 用于记录轮廓内部子轮廓的个数
+	int parentIdx = -1;
+	for (int i = 0; i < contours.size(); i++)
+	{
+		if (hierarchy[i][2] != -1 && ic == 0)
+		{
+			parentIdx = i;
+			ic++;
+		}
+		else if (hierarchy[i][2] != -1)
+			ic++;
+		else if (-1 == hierarchy[i][2])             // 当没有子轮廓时，清零
+		{
+			parentIdx = -1;
+			ic = 0;
+		}
+
+		// 判断当子轮廓数>=2 时为定位矩形区域，存入 contours2 中
+		if (ic >= 2)
+		{
+			contours2.push_back(contours[parentIdx]);
+			ic = 0;
+			parentIdx = -1;
+		}
+	}
+	drawContours(drawing, contours2, -1, Scalar(0, 255, 0), 1, 8);         // contourIdx 为负数，表示绘制所有的轮廓
+	imshow("drawing", drawing);
+	waitKey(0);
 }

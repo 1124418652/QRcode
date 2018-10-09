@@ -22,10 +22,13 @@ int main()
 		return 1;
 	}
 
-	cvtColor(src_img, gray_img, CV_BGR2GRAY);
+	cout << src_img.size() << endl;
 
 	start = time(NULL);
-	qr::preProcess(gray_img, dest);
+	if (qr::preProcess(src_img, dest))
+	{
+		qr::findPosRect(dest, src_img.clone());
+	}
 	//qr::threshold(dest, dest);
 	end = time(NULL);
 	cout << "Time Used: " << end - start << "ms" << endl;
@@ -33,7 +36,6 @@ int main()
 
 	
 	imshow("src_img", src_img);
-	imshow("gray_img", gray_img);
 
 	//threshold(src_img, dest, 103, 255, 0);
 	imshow("dest", dest);
