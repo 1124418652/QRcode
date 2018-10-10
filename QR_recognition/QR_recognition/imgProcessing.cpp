@@ -100,7 +100,7 @@ bool qr::preProcess(const Mat &src, Mat &dest)
 	
 	cvtColor(src, tmpimg, CV_BGR2GRAY);
 	blur(tmpimg, tmpimg, Size(3, 3));                  // 用 3*3 的 kernal 高斯模糊
-	qr::threshold(tmpimg, dest, OTSUTHRE);          // dest 为生成的二值图像
+	qr::threshold(tmpimg, dest, OTSUTHRE);             // dest 为生成的二值图像
 
 	return true;
 }
@@ -159,8 +159,6 @@ void qr::findPosRect(const Mat &src, vector<vector<Point>> &contours2)
 		}
 	}
 
-
-
 	if (0 == contours2.size())
 	{
 		cout << "Can't find the QR code!" << endl;
@@ -168,4 +166,71 @@ void qr::findPosRect(const Mat &src, vector<vector<Point>> &contours2)
 	}
 }
 
+void qr::imgAffine(const Mat &src, Mat &dest, const vector<Point> &centers)
+{
+	Point2f srcPoint[3], dstPoint[3];
+	vector<Point> newCenters(3);
+	float dis01, dis02, dis12;
+	dis01 = getDistance(centers[0], centers[1]);
+	dis02 = getDistance(centers[0], centers[2]);
+	dis12 = getDistance(centers[1], centers[2]);
 
+	// 只适用于顺时针转过90度以内的情况
+	if (dis01 > dis02 && dis01 > dis12)
+	{
+		newCenters[0] = centers[2];
+		if (centers[0].x > newCenters[0].x)
+		{
+			newCenters[1] = centers[0];
+			newCenters[2] = centers[1];
+		}
+		else
+		{
+			newCenters[1] = centers[1];
+			newCenters[2] = centers[0];
+		}
+	}
+
+	else if (dis02 > dis01 && dis02 > dis12)
+	{
+		newCenters[0] = centers[1];
+		if (centers[0].x > newCenters[0].x)
+		{
+			newCenters[1] = centers[0];
+			newCenters[2] = centers[2];
+		}
+		else
+		{
+			newCenters[1] = centers[2];
+			newCenters[2] = centers[0];
+		}
+	}
+	else
+	{
+		newCenters[0] = centers[0];
+		if (centers[1].x > newCenters[0].x)
+		{
+			newCenters[1] = centers[1];
+			newCenters[2] = centers[2];
+		}
+		else
+		{
+			newCenters[1] = centers[2];
+			newCenters[2] = centers[1];
+		}
+	}
+
+	cout << newCenters[0] << endl;
+	cout << newCenters[1] << endl;
+	cout << newCenters[2] << endl;
+
+	srcPoint[0] = Point2f(newCenters[0].x, newCenters[0].y);
+	srcPoint[1] = Point2f(newCenters[1].x, newCenters[1].y);
+	srcPoint[2] = Point2f(newCenters[2].x, newCenters[2].y);
+	dstPoint[0] = Point2f(newCenters[0].x, newCenters[0].y);
+	dstPoint[1] = Point2f(newCenters[1].x, newCenters[0].y);
+	dstPoint[2] = Point2f(newCenters[0].x, newCenters[2].y);
+
+	Mat warpMat = getAffineTransform(srcPoint, dstPoint);
+	warpAffine(src, dest, warpMat, dest.size());
+}
