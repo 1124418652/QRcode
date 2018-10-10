@@ -12,7 +12,8 @@ using namespace cv;
 int main()
 {
 	clock_t start, end;
-	Mat src_img = imread("../../../../prectice_in_book/src/er.jpg");
+	Mat src_img = imread("../../src/qr3.jpg");
+	resize(src_img, src_img, Size(400, 300));
 	Mat dest, drawing = src_img.clone();
 
 	if (src_img.empty())
@@ -40,7 +41,6 @@ int main()
 	}
 	end = time(NULL);
 	cout << "Time Used: " << end - start << "ms" << endl;
-
 	imshow("src_img", src_img);
 	//threshold(src_img, dest, 103, 255, 0);
 	imshow("dest", dest);

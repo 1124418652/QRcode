@@ -89,6 +89,11 @@ Point qr::centerCal(vector<vector<Point>> contours, int i)
 	return Point(centerX / 4, centerY / 4);
 }
 
+float qr::getDistance(const Point &p1, const Point &p2)
+{
+	return sqrt(pow((float)p1.x - p2.x, 2) + pow((float)p1.y - p2.y, 2));
+}
+
 bool qr::preProcess(const Mat &src, Mat &dest)
 {
 	Mat tmpimg;
@@ -96,6 +101,26 @@ bool qr::preProcess(const Mat &src, Mat &dest)
 	cvtColor(src, tmpimg, CV_BGR2GRAY);
 	blur(tmpimg, tmpimg, Size(3, 3));                  // 用 3*3 的 kernal 高斯模糊
 	qr::threshold(tmpimg, dest, OTSUTHRE);          // dest 为生成的二值图像
+
+	return true;
+}
+
+bool qr::isPosRect(const vector<vector<Point>> &contours, const vector<Vec4i> &hierarchy, int parentIdx)
+{
+	float thresholdx = 5;
+	int sonIdx = hierarchy[parentIdx][2];
+	int grandsonIdx = hierarchy[sonIdx][2];
+	Point parentCenter, sonCenter, grandsonCenter;
+
+	parentCenter = qr::centerCal(contours, parentIdx);
+	sonCenter = qr::centerCal(contours, sonIdx);
+	grandsonCenter = qr::centerCal(contours, grandsonIdx);
+
+	if (getDistance(parentCenter, sonCenter) >= thresholdx || getDistance(sonCenter, grandsonCenter) >= thresholdx \
+		|| getDistance(parentCenter, grandsonCenter) >= thresholdx)
+	{
+		return false;
+	}
 
 	return true;
 }
@@ -126,11 +151,21 @@ void qr::findPosRect(const Mat &src, vector<vector<Point>> &contours2)
 		}
 
 		// 判断当子轮廓数>=2 时为定位矩形区域，存入 contours2 中
-		if (ic >= 2)
+		if (ic >= 2 && isPosRect(contours, hierarchy, parentIdx))
 		{
 			contours2.push_back(contours[parentIdx]);
 			ic = 0;
 			parentIdx = -1;
 		}
 	}
+
+
+
+	if (0 == contours2.size())
+	{
+		cout << "Can't find the QR code!" << endl;
+		return;
+	}
 }
+
+

@@ -15,4 +15,6 @@ namespace qr {
 	bool preProcess(const Mat &src, Mat &dest);
 	Point centerCal(vector<vector<Point>> contours, int i);
 	void findPosRect(const Mat &src, vector<vector<Point>> &contours2);
+	float getDistance(const Point &p1, const Point &p2);
+	bool isPosRect(const vector<vector<Point>> &contours, const vector<Vec4i> &hierarchy, int parentIdx);
 };
